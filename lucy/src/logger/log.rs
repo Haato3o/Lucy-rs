@@ -1,4 +1,4 @@
-trait Logger {
+pub trait Logger {
     fn debug(message: String);
     fn info(message: String);
     fn warn(message: String);

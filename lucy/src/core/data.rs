@@ -35,10 +35,42 @@ impl From<u32> for AnyData {
     }
 }
 
+impl From<u64> for AnyData {
+    fn from(val: u64) -> Self {
+        AnyData {
+            uint64: val
+        }
+    }
+}
+
+impl From<i32> for AnyData {
+    fn from(val: i32) -> Self {
+        AnyData {
+            int32: val
+        }
+    }
+}
+
 impl From<i64> for AnyData {
     fn from(val: i64) -> Self {
         AnyData {
             int64: val
+        }
+    }
+}
+
+impl From<f32> for AnyData {
+    fn from(val: f32) -> Self {
+        AnyData {
+            float: val
+        }
+    }
+}
+
+impl From<f64> for AnyData {
+    fn from(val: f64) -> Self {
+        AnyData {
+            double: val
         }
     }
 }
@@ -49,6 +81,22 @@ impl From<&String> for AnyData {
         let wrapper = ManuallyDrop::new(str);
         AnyData  {
             string: wrapper
+        }
+    }
+}
+
+impl From<char> for AnyData {
+    fn from(val: char) -> Self {
+        AnyData {
+            char: val
+        }
+    }
+}
+
+impl From<Register> for AnyData {
+    fn from(val: Register) -> Self {
+        AnyData {
+            register: val
         }
     }
 }

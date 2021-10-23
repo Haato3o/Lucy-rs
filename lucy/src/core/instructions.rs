@@ -5,7 +5,7 @@ use num_traits::FromPrimitive;
 
 pub type Any = AnyData;
 
-#[derive(Debug, FromPrimitive)]
+#[derive(Debug, FromPrimitive, Clone, Copy, PartialEq)]
 pub enum Operations {
     MOV,
     PUSH,
@@ -48,6 +48,24 @@ impl Operations {
         let primitive = name.to_uppercase();
 
         instruction.contains(&primitive)
+    }
+
+    pub fn from_string(name: &String) -> Option<Operations> {
+        let mut instruction: Vec<String> = Vec::with_capacity(Operations::COUNT as usize);
+
+        for inst in 0..(Operations::COUNT as i32) {
+            let op: Operations = FromPrimitive::from_i32(inst).unwrap();
+
+            instruction.push(format!("{:?}", op))
+        }
+
+        let primitive = name.to_uppercase();
+
+        let i = instruction.iter().position(|ins| &primitive == ins);
+        match i {
+            Some(idx) => FromPrimitive::from_usize(idx),
+            None => None,
+        }
     }
 }
 

@@ -1,9 +1,31 @@
-use super::register::Register;
-use super::data::AnyData;
+use std::{fmt::Display, fs::OpenOptions, ops::AddAssign};
+
+use super::data::{AnyData, DataType};
 use num_derive::FromPrimitive;
 use num_traits::FromPrimitive;
 
 pub type Any = AnyData;
+
+pub struct OperationData {
+    pub typ: DataType,
+    pub data: AnyData
+}
+
+impl Display for OperationData {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self.typ {
+            DataType::Uint32 => write!(f, "{}", self.data.uint32),
+            DataType::Uint64 => write!(f, "{}", self.data.uint64),
+            DataType::Int32 => write!(f, "{}", self.data.int32),
+            DataType::Int64 => write!(f, "{}", self.data.int64),
+            DataType::Float => write!(f, "{}", self.data.float),
+            DataType::Double => write!(f, "{}", self.data.double),
+            DataType::String => write!(f, "{}", self.data.string.as_str()),
+            DataType::Char => write!(f, "{}", self.data.char),
+            DataType::Register => write!(f, "{:?}", self.data.register),
+        }
+    }
+}
 
 #[derive(Debug, FromPrimitive, Clone, Copy, PartialEq)]
 pub enum Operations {
@@ -70,13 +92,14 @@ impl Operations {
 }
 
 pub trait OperationImpl {
-    fn exec_mov(&self, register: Register, any: Any);
-    fn exec_push(&self, any: Any);
-    fn exec_pop(&self, register: Register);
-    fn exec_add(&self, left: Any, right: Any);
-    fn exec_sub(&self, left: Any, right: Any);
-    fn exec_mul(&self, left: Any, right: Any);
-    fn exec_div(&self, left: Any, right: Any);
-    fn exec_mod(&self, left: Any, right: Any);
-    fn exec_dmp(&self, any: Any);
+    fn exec_mov(&mut self, register: &OperationData, any: &OperationData);
+    fn exec_push(&mut self, any: &OperationData);
+    fn exec_pop(&mut self, register: &OperationData);
+    fn exec_add(&mut self, left: &OperationData, right: &OperationData);
+    fn exec_sub(&mut self, left: &OperationData, right: &OperationData);
+    fn exec_mul(&mut self, left: &OperationData, right: &OperationData);
+    fn exec_div(&mut self, left: &OperationData, right: &OperationData);
+    fn exec_mod(&mut self, left: &OperationData, right: &OperationData);
+    fn exec_jmp(&mut self, address: &OperationData);
+    fn exec_dmp(&mut self, any: &OperationData);
 }

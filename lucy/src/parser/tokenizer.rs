@@ -37,7 +37,7 @@ impl Tokenizer {
         self.cursor += 1;
 
         if Register::is_register(tkn) {
-            TokenType::REGISTER(Register::RAX)
+            TokenType::REGISTER(Register::from_string(tkn).unwrap())
         } else if Operations::is_operation(tkn) {
             self.last_operation = Operations::from_string(tkn);
             TokenType::INSTRUCTION(Operations::from_string(tkn).unwrap())

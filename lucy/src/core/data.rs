@@ -2,7 +2,7 @@ use std::mem::ManuallyDrop;
 
 use super::register::Register;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub enum DataType {
     Uint32,
     Uint64,
@@ -15,7 +15,8 @@ pub enum DataType {
     Register
 }
 
-pub union AnyData {
+#[derive(Debug, Clone)]
+pub struct AnyData {
     pub uint32: u32,
     pub uint64: u64,
     pub int32: i32,
@@ -30,7 +31,15 @@ pub union AnyData {
 impl From<u32> for AnyData {
     fn from(val: u32) -> Self {
         AnyData {
-            uint32: val
+            uint32: val,
+            uint64: 0,
+            int32: 0,
+            int64: 0,
+            float: 0.0,
+            double: 0.0,
+            string: ManuallyDrop::new(String::from("")),
+            char: ' ',
+            register: Register::COUNT
         }
     }
 }
@@ -38,7 +47,15 @@ impl From<u32> for AnyData {
 impl From<u64> for AnyData {
     fn from(val: u64) -> Self {
         AnyData {
-            uint64: val
+            uint32: 0,
+            uint64: val,
+            int32: 0,
+            int64: 0,
+            float: 0.0,
+            double: 0.0,
+            string: ManuallyDrop::new(String::from("")),
+            char: ' ',
+            register: Register::COUNT
         }
     }
 }
@@ -46,7 +63,15 @@ impl From<u64> for AnyData {
 impl From<i32> for AnyData {
     fn from(val: i32) -> Self {
         AnyData {
-            int32: val
+            uint32: 0,
+            uint64: 0,
+            int32: val,
+            int64: 0,
+            float: 0.0,
+            double: 0.0,
+            string: ManuallyDrop::new(String::from("")),
+            char: ' ',
+            register: Register::COUNT
         }
     }
 }
@@ -54,7 +79,15 @@ impl From<i32> for AnyData {
 impl From<i64> for AnyData {
     fn from(val: i64) -> Self {
         AnyData {
-            int64: val
+            uint32: 0,
+            uint64: 0,
+            int32: 0,
+            int64: val,
+            float: 0.0,
+            double: 0.0,
+            string: ManuallyDrop::new(String::from("")),
+            char: ' ',
+            register: Register::COUNT
         }
     }
 }
@@ -62,7 +95,15 @@ impl From<i64> for AnyData {
 impl From<f32> for AnyData {
     fn from(val: f32) -> Self {
         AnyData {
-            float: val
+            uint32: 0,
+            uint64: 0,
+            int32: 0,
+            int64: 0,
+            float: val,
+            double: 0.0,
+            string: ManuallyDrop::new(String::from("")),
+            char: ' ',
+            register: Register::COUNT
         }
     }
 }
@@ -70,7 +111,15 @@ impl From<f32> for AnyData {
 impl From<f64> for AnyData {
     fn from(val: f64) -> Self {
         AnyData {
-            double: val
+            uint32: 0,
+            uint64: 0,
+            int32: 0,
+            int64: 0,
+            float: 0.0,
+            double: val,
+            string: ManuallyDrop::new(String::from("")),
+            char: ' ',
+            register: Register::COUNT
         }
     }
 }
@@ -78,9 +127,16 @@ impl From<f64> for AnyData {
 impl From<&String> for AnyData {
     fn from(val: &String) -> Self {
         let str = String::from(val);
-        let wrapper = ManuallyDrop::new(str);
         AnyData  {
-            string: wrapper
+            uint32: 0,
+            uint64: 0,
+            int32: 0,
+            int64: 0,
+            float: 0.0,
+            double: 0.0,
+            string: ManuallyDrop::new(str),
+            char: ' ',
+            register: Register::COUNT
         }
     }
 }
@@ -88,7 +144,15 @@ impl From<&String> for AnyData {
 impl From<char> for AnyData {
     fn from(val: char) -> Self {
         AnyData {
-            char: val
+            uint32: 0,
+            uint64: 0,
+            int32: 0,
+            int64: 0,
+            float: 0.0,
+            double: 0.0,
+            string: ManuallyDrop::new(String::from("")),
+            char: val,
+            register: Register::COUNT
         }
     }
 }
@@ -96,6 +160,14 @@ impl From<char> for AnyData {
 impl From<Register> for AnyData {
     fn from(val: Register) -> Self {
         AnyData {
+            uint32: 0,
+            uint64: 0,
+            int32: 0,
+            int64: 0,
+            float: 0.0,
+            double: 0.0,
+            string: ManuallyDrop::new(String::from("")),
+            char: ' ',
             register: val
         }
     }

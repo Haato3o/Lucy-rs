@@ -1,16 +1,11 @@
 use std::{collections::HashMap, collections::VecDeque};
-use crate::{core::{data::{AnyData, DataType}, instructions::Operations}, logger::log::{Log, Logger}, parser::token::TokenType};
+use crate::{core::{data::{AnyData, DataType}, instructions::{OperationData, Operations}}, parser::token::TokenType};
 
 type Program = Vec<LucyInstruction>;
 
-pub struct OperationParameter {
-    pub typ: DataType,
-    pub data: AnyData
-}
-
 pub struct LucyInstruction {
-    pub instruction: Operations,
-    pub arguments: Vec<OperationParameter>
+    pub op_code: Operations,
+    pub arguments: Vec<OperationData>
 }
 
 pub struct LucyCompiler {}
@@ -20,7 +15,7 @@ impl LucyCompiler {
         
         let checkpoints = LucyCompiler::index_checkpoints(tokens);
         let mut program: Program = Program::new();
-        let mut args: VecDeque<OperationParameter> = VecDeque::new();
+        let mut args: VecDeque<OperationData> = VecDeque::new();
         let mut queued_instruction: Operations = Operations::COUNT;
 
         for token in tokens {
@@ -31,7 +26,7 @@ impl LucyCompiler {
                     match checkpoints.get(checkpoint) {
                         Some(i) => {
                             args.push_back(
-                                OperationParameter { typ: DataType::Int64, data: AnyData::from(*i as i64) }
+                                OperationData { typ: DataType::Int64, data: AnyData::from(*i as i64) }
                             );
                             
                         },
@@ -42,48 +37,48 @@ impl LucyCompiler {
                     unsafe {
                         match typ {
                             DataType::Uint32 => args.push_back(
-                                OperationParameter { typ: DataType::Uint32, data: AnyData::from(data.uint32) }
+                                OperationData { typ: DataType::Uint32, data: AnyData::from(data.uint32) }
                             ),
                             DataType::Uint64 => args.push_back(
-                                OperationParameter { typ: DataType::Uint64, data: AnyData::from(data.uint64) }
+                                OperationData { typ: DataType::Uint64, data: AnyData::from(data.uint64) }
                             ),
                             DataType::Int32 => args.push_back(
-                                OperationParameter { typ: DataType::Int32, data: AnyData::from(data.int32) }
+                                OperationData { typ: DataType::Int32, data: AnyData::from(data.int32) }
                             ),
                             DataType::Int64 => args.push_back(
-                                OperationParameter { typ: DataType::Int64, data: AnyData::from(data.int64) }
+                                OperationData { typ: DataType::Int64, data: AnyData::from(data.int64) }
                             ),
                             DataType::Float => args.push_back(
-                                OperationParameter { typ: DataType::Float, data: AnyData::from(data.float) }
+                                OperationData { typ: DataType::Float, data: AnyData::from(data.float) }
                             ),
                             DataType::Double => args.push_back(
-                                OperationParameter { typ: DataType::Double, data: AnyData::from(data.double) }
+                                OperationData { typ: DataType::Double, data: AnyData::from(data.double) }
                             ),
                             DataType::String => args.push_back(
-                                OperationParameter { typ: DataType::String, data: AnyData::from(&data.string.to_string()) }
+                                OperationData { typ: DataType::String, data: AnyData::from(&data.string.to_string()) }
                             ),
                             DataType::Char => args.push_back(
-                                OperationParameter { typ: DataType::Char, data: AnyData::from(data.char) }
+                                OperationData { typ: DataType::Char, data: AnyData::from(data.char) }
                             ),
                             DataType::Register => args.push_back(
-                                OperationParameter { typ: DataType::Register, data: AnyData::from(data.register) }
+                                OperationData { typ: DataType::Register, data: AnyData::from(data.register) }
                             ),
                         }
                     }
                 },
                 TokenType::REGISTER(reg) => args.push_back(
-                    OperationParameter { typ: DataType::Register, data: AnyData::from(*reg) }
+                    OperationData { typ: DataType::Register, data: AnyData::from(*reg) }
                 ),
                 TokenType::INSTRUCTION(ins) => {
                     if queued_instruction != Operations::COUNT {
-                        let mut vec: Vec<OperationParameter> = Vec::with_capacity(args.len());
+                        let mut vec: Vec<OperationData> = Vec::with_capacity(args.len());
 
                         while args.len() > 0 {
                             vec.push(args.pop_front().unwrap());
                         }
 
                         program.push(
-                            LucyInstruction { instruction: queued_instruction, arguments: vec }
+                            LucyInstruction { op_code: queued_instruction, arguments: vec }
                         );
                     }
                     queued_instruction = *ins;
@@ -92,14 +87,14 @@ impl LucyCompiler {
         }
         
         if args.len() > 0 {
-            let mut vec: Vec<OperationParameter> = Vec::with_capacity(args.len());
+            let mut vec: Vec<OperationData> = Vec::with_capacity(args.len());
 
             while args.len() > 0 {
                 vec.push(args.pop_front().unwrap());
             }
 
             program.push(
-                LucyInstruction { instruction: queued_instruction, arguments: vec }
+                LucyInstruction { op_code: queued_instruction, arguments: vec }
             );
 
             queued_instruction = Operations::COUNT;

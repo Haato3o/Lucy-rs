@@ -202,59 +202,33 @@ impl OperationImpl for LucyEnvironment {
     }
 
     fn exec_cmp(&mut self, left: &OperationData, right: &OperationData) {
-        // TODO: I hate this code, fix me please
-        let mut are_equal = false;
-        
+        let mut left_data = left;
+        let mut right_data = right;
+
         if left.typ == DataType::Register {
             let left_register = left.data.register as usize;
-            let left_data = &self.registers[left_register];
-
-            if right.typ == DataType::Register {
-                let right_register = right.data.register as usize;
-                let right_data = &self.registers[right_register];
-                
-                assert!(left_data.typ == right_data.typ);
-                
-
-                match left_data.typ {
-                    DataType::Uint32 => are_equal = left_data.data.uint32 == right_data.data.uint32,
-                    DataType::Uint64 => are_equal = left_data.data.uint64 == right_data.data.uint64,
-                    DataType::Int32 => are_equal = left_data.data.int32 == right_data.data.int32,
-                    DataType::Int64 => are_equal = left_data.data.int64 == right_data.data.int64,
-                    DataType::Float => are_equal = left_data.data.float == right_data.data.float, 
-                    DataType::Double => are_equal = left_data.data.double == right_data.data.double,
-                    DataType::String => are_equal = left_data.data.string == right_data.data.string,
-                    DataType::Char => are_equal = left_data.data.char == right_data.data.char,
-                    DataType::Register => are_equal = false,
-                }
-            }
-        } else {
-            let mut right_data = right;
-
-            if right.typ == DataType::Register {
-            
-                let right_register = right.data.register as usize;
-                right_data = &self.registers[right_register];
-
-            }
-            
-            assert!(left.typ == right_data.typ);
-
-            match left.typ {
-                DataType::Uint32 => are_equal = left.data.uint32 == right_data.data.uint32,
-                DataType::Uint64 => are_equal = left.data.uint64 == right_data.data.uint64,
-                DataType::Int32 => are_equal = left.data.int32 == right_data.data.int32,
-                DataType::Int64 => are_equal = left.data.int64 == right_data.data.int64,
-                DataType::Float => are_equal = left.data.float == right_data.data.float, 
-                DataType::Double => are_equal = left.data.double == right_data.data.double,
-                DataType::String => are_equal = left.data.string == right_data.data.string,
-                DataType::Char => are_equal = left.data.char == right_data.data.char,
-                DataType::Register => are_equal = false,
-            }
+            left_data = &self.registers[left_register];
 
         }
+        if right.typ == DataType::Register {
+            let right_register = right.data.register as usize;
+            right_data = &self.registers[right_register];
+        }
 
-        self.flags.zf = are_equal;
+        assert!(left_data.typ == right_data.typ);
+
+        match left_data.typ {
+            DataType::Uint32 =>  self.flags.zf = left_data.data.uint32 == right_data.data.uint32,
+            DataType::Uint64 =>  self.flags.zf = left_data.data.uint64 == right_data.data.uint64,
+            DataType::Int32 =>  self.flags.zf = left_data.data.int32 == right_data.data.int32,
+            DataType::Int64 =>  self.flags.zf = left_data.data.int64 == right_data.data.int64,
+            DataType::Float =>  self.flags.zf = left_data.data.float == right_data.data.float, 
+            DataType::Double =>  self.flags.zf = left_data.data.double == right_data.data.double,
+            DataType::String =>  self.flags.zf = left_data.data.string == right_data.data.string,
+            DataType::Char =>  self.flags.zf = left_data.data.char == right_data.data.char,
+            DataType::Register =>  self.flags.zf = false,
+        }
+        
     }
 
     fn exec_dmp(&mut self, any: &OperationData) {

@@ -34,36 +34,34 @@ impl LucyCompiler {
                     }
                 },
                 TokenType::DATA(typ, data) => {
-                    unsafe {
-                        match typ {
-                            DataType::Uint32 => args.push_back(
-                                OperationData { typ: DataType::Uint32, data: AnyData::from(data.uint32) }
-                            ),
-                            DataType::Uint64 => args.push_back(
-                                OperationData { typ: DataType::Uint64, data: AnyData::from(data.uint64) }
-                            ),
-                            DataType::Int32 => args.push_back(
-                                OperationData { typ: DataType::Int32, data: AnyData::from(data.int32) }
-                            ),
-                            DataType::Int64 => args.push_back(
-                                OperationData { typ: DataType::Int64, data: AnyData::from(data.int64) }
-                            ),
-                            DataType::Float => args.push_back(
-                                OperationData { typ: DataType::Float, data: AnyData::from(data.float) }
-                            ),
-                            DataType::Double => args.push_back(
-                                OperationData { typ: DataType::Double, data: AnyData::from(data.double) }
-                            ),
-                            DataType::String => args.push_back(
-                                OperationData { typ: DataType::String, data: AnyData::from(&data.string.to_string()) }
-                            ),
-                            DataType::Char => args.push_back(
-                                OperationData { typ: DataType::Char, data: AnyData::from(data.char) }
-                            ),
-                            DataType::Register => args.push_back(
-                                OperationData { typ: DataType::Register, data: AnyData::from(data.register) }
-                            ),
-                        }
+                    match typ {
+                        DataType::Uint32 => args.push_back(
+                            OperationData { typ: DataType::Uint32, data: AnyData::from(data.uint32) }
+                        ),
+                        DataType::Uint64 => args.push_back(
+                            OperationData { typ: DataType::Uint64, data: AnyData::from(data.uint64) }
+                        ),
+                        DataType::Int32 => args.push_back(
+                            OperationData { typ: DataType::Int32, data: AnyData::from(data.int32) }
+                        ),
+                        DataType::Int64 => args.push_back(
+                            OperationData { typ: DataType::Int64, data: AnyData::from(data.int64) }
+                        ),
+                        DataType::Float => args.push_back(
+                            OperationData { typ: DataType::Float, data: AnyData::from(data.float) }
+                        ),
+                        DataType::Double => args.push_back(
+                            OperationData { typ: DataType::Double, data: AnyData::from(data.double) }
+                        ),
+                        DataType::String => args.push_back(
+                            OperationData { typ: DataType::String, data: AnyData::from(&data.string.to_string()) }
+                        ),
+                        DataType::Char => args.push_back(
+                            OperationData { typ: DataType::Char, data: AnyData::from(data.char) }
+                        ),
+                        DataType::Register => args.push_back(
+                            OperationData { typ: DataType::Register, data: AnyData::from(data.register) }
+                        ),
                     }
                 },
                 TokenType::REGISTER(reg) => args.push_back(
@@ -96,8 +94,6 @@ impl LucyCompiler {
             program.push(
                 LucyInstruction { op_code: queued_instruction, arguments: vec }
             );
-
-            queued_instruction = Operations::COUNT;
         }
 
         program

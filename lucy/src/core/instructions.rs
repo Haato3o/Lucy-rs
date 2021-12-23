@@ -1,5 +1,4 @@
-use std::{fmt::Display, fs::OpenOptions, ops::AddAssign};
-
+use std::{fmt::Display, cmp::PartialEq};
 use super::data::{AnyData, DataType};
 use num_derive::FromPrimitive;
 use num_traits::FromPrimitive;
@@ -101,5 +100,8 @@ pub trait OperationImpl {
     fn exec_div(&mut self, left: &OperationData, right: &OperationData);
     fn exec_mod(&mut self, left: &OperationData, right: &OperationData);
     fn exec_jmp(&mut self, address: &OperationData);
+    fn exec_jne(&mut self, address: &OperationData);
+    fn exec_je(&mut self, address: &OperationData);
     fn exec_dmp(&mut self, any: &OperationData);
+    fn exec_cmp(&mut self, left: &OperationData, right: &OperationData);
 }

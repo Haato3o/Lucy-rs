@@ -1,7 +1,6 @@
 use crate::core::data::{AnyData, DataType};
 use crate::core::instructions::Operations;
 use crate::core::register::Register;
-use crate::logger::log::{Log, Logger};
 
 use super::converter::Converter;
 use super::pretokenizer::PreTokenizer;

@@ -1,6 +1,12 @@
-use crate::{compiler::compiler::LucyInstruction, core::{data::{AnyData, DataType}, instructions::{OperationData, OperationImpl, Operations}, register::Register}, logger::log::{Log, Logger}};
+use crate::{compiler::compiler::LucyInstruction, core::{data::{AnyData, DataType, self}, instructions::{OperationData, OperationImpl, Operations}, register::Register}};
 
+pub struct Flags {
+    pub zf: bool
+}
+
+#[allow(dead_code)]
 pub struct LucyEnvironment {
+    flags: Flags,
     registers: Vec<OperationData>,
     pub pc: i64,
     stack: Vec<OperationData>,
@@ -11,7 +17,8 @@ impl LucyEnvironment {
         let mut this = LucyEnvironment {
             registers: Vec::with_capacity(Register::COUNT as usize),
             pc: 0,
-            stack: Vec::new()
+            stack: Vec::new(),
+            flags: Flags { zf: false },
         };
 
         for _ in 0..this.registers.capacity() {
@@ -35,10 +42,10 @@ impl LucyEnvironment {
             Operations::MUL => todo!(),
             Operations::DIV => todo!(),
             Operations::MOD => todo!(),
-            Operations::CMP => todo!(),
-            Operations::JNE => todo!(),
+            Operations::CMP => self.exec_cmp(&instruction.arguments[0], &instruction.arguments[1]),
+            Operations::JNE => self.exec_jne(&instruction.arguments[0]),
             Operations::JMP => self.exec_jmp(&instruction.arguments[0]),
-            Operations::JE => todo!(),
+            Operations::JE => self.exec_je(&instruction.arguments[0]),
             Operations::INC => todo!(),
             Operations::OR => todo!(),
             Operations::AND => todo!(),
@@ -55,6 +62,7 @@ impl LucyEnvironment {
     }
 }
 
+#[allow(unused_variables)]
 impl OperationImpl for LucyEnvironment {
     fn exec_mov(&mut self, register: &OperationData, any: &OperationData) {
         assert!(register.typ == DataType::Register);
@@ -140,18 +148,6 @@ impl OperationImpl for LucyEnvironment {
         todo!()
     }
 
-    fn exec_dmp(&mut self, any: &OperationData) {
-        
-        if any.typ == DataType::Register {
-            let reg_id = any.data.register as usize;
-
-            println!("{}", self.registers[reg_id]);
-        } else {
-            println!("{}", any);
-        }
-        
-    }
-
     fn exec_jmp(&mut self, address: &OperationData) {
         if address.typ == DataType::Register {
             let other_id = address.data.register as usize;
@@ -164,4 +160,113 @@ impl OperationImpl for LucyEnvironment {
             self.pc = address.data.int64 - 1;
         }
     }
+    
+    fn exec_jne(&mut self, address: &OperationData) {
+        
+        if address.typ == DataType::Register {
+            let register_id = address.data.register as usize;
+            let register_data = &self.registers[register_id];
+
+            assert!(register_data.typ == DataType::Int64);
+
+            if !self.flags.zf {
+                self.pc = register_data.data.int64 - 1;
+            }
+        } else {
+            assert!(address.typ == DataType::Int64);
+
+            if !self.flags.zf {
+                self.pc = address.data.int64 - 1;
+            }
+        }
+        
+    }
+
+    fn exec_je(&mut self, address: &OperationData) {
+        if address.typ == DataType::Register {
+            let register_id = address.data.register as usize;
+            let register_data = &self.registers[register_id];
+
+            assert!(register_data.typ == DataType::Int64);
+
+            if self.flags.zf {
+                self.pc = register_data.data.int64 - 1;
+            }
+        } else {
+            assert!(address.typ == DataType::Int64);
+
+            if self.flags.zf {
+                self.pc = address.data.int64 - 1;
+            }
+        }
+    }
+
+    fn exec_cmp(&mut self, left: &OperationData, right: &OperationData) {
+        // TODO: I hate this code, fix me please
+        let mut are_equal = false;
+        
+        if left.typ == DataType::Register {
+            let left_register = left.data.register as usize;
+            let left_data = &self.registers[left_register];
+
+            if right.typ == DataType::Register {
+                let right_register = right.data.register as usize;
+                let right_data = &self.registers[right_register];
+                
+                assert!(left_data.typ == right_data.typ);
+                
+
+                match left_data.typ {
+                    DataType::Uint32 => are_equal = left_data.data.uint32 == right_data.data.uint32,
+                    DataType::Uint64 => are_equal = left_data.data.uint64 == right_data.data.uint64,
+                    DataType::Int32 => are_equal = left_data.data.int32 == right_data.data.int32,
+                    DataType::Int64 => are_equal = left_data.data.int64 == right_data.data.int64,
+                    DataType::Float => are_equal = left_data.data.float == right_data.data.float, 
+                    DataType::Double => are_equal = left_data.data.double == right_data.data.double,
+                    DataType::String => are_equal = left_data.data.string == right_data.data.string,
+                    DataType::Char => are_equal = left_data.data.char == right_data.data.char,
+                    DataType::Register => are_equal = false,
+                }
+            }
+        } else {
+            let mut right_data = right;
+
+            if right.typ == DataType::Register {
+            
+                let right_register = right.data.register as usize;
+                right_data = &self.registers[right_register];
+
+            }
+            
+            assert!(left.typ == right_data.typ);
+
+            match left.typ {
+                DataType::Uint32 => are_equal = left.data.uint32 == right_data.data.uint32,
+                DataType::Uint64 => are_equal = left.data.uint64 == right_data.data.uint64,
+                DataType::Int32 => are_equal = left.data.int32 == right_data.data.int32,
+                DataType::Int64 => are_equal = left.data.int64 == right_data.data.int64,
+                DataType::Float => are_equal = left.data.float == right_data.data.float, 
+                DataType::Double => are_equal = left.data.double == right_data.data.double,
+                DataType::String => are_equal = left.data.string == right_data.data.string,
+                DataType::Char => are_equal = left.data.char == right_data.data.char,
+                DataType::Register => are_equal = false,
+            }
+
+        }
+
+        self.flags.zf = are_equal;
+    }
+
+    fn exec_dmp(&mut self, any: &OperationData) {
+        
+        if any.typ == DataType::Register {
+            let reg_id = any.data.register as usize;
+
+            println!("{}", self.registers[reg_id]);
+        } else {
+            println!("{}", any);
+        }
+        
+    }
+
 }

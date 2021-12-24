@@ -1,3 +1,4 @@
+use std::fs;
 use std::io::{self, Write};
 use std::process::exit;
 use lucy::logger::log::{Log, Logger};
@@ -64,39 +65,32 @@ fn print_usage() {
 }
 // TODO: CLI args
 fn main() {
-    let args = std::env::args();
-
-    if args.len() < 3 {
+    let args: Vec<String> = std::env::args().collect();
+    
+    if args.len() <= 1 {
         lucy_interpreter(); 
     }
-    // let input = 
-    // "
-    //     jmp main
-    //     dmp \"Hello, World!\"
-    //     :main
-    //     mov eax, 10
-    //     mov ebx, 20
-    //     add eax, ebx
-    //     dmp eax
-    //     dmp ebx
-    // ";
 
-    // let mut pretokenizer = PreTokenizer::new(String::from(input));
-    // let _ = pretokenizer.parse();
-    // let mut tokenizer = Tokenizer::new(pretokenizer);
-    // let tokens = tokenizer.tokenize();
+    let file_path = &args[1];
+    let input = fs::read_to_string(file_path)
+        .expect("Something went wrong when reading file");
+
+    let mut pretokenizer = PreTokenizer::new(input);
+    let _ = pretokenizer.parse();
+    let mut tokenizer = Tokenizer::new(pretokenizer);
+    let tokens = tokenizer.tokenize();
 
     // for tkn in tokens {
-    //     Log::info(format!("{}", tkn));
+    //     Log::debug(format!("{}", tkn));
     // }
 
-    // let compiled = LucyCompiler::compile(tokens);
+    let compiled = LucyCompiler::compile(tokens);
 
-    // for c in &compiled {
-    //     Log::info(format!("{:?} {:?}", c.op_code, c.arguments[0].data));
-    // }
+    for c in &compiled {
+        Log::debug(format!("{:?} {:?}", c.op_code, c.arguments[0].data));
+    }
 
-    // let mut vm = LucyMachine::new(compiled);
-    // vm.run();
+    let mut vm = LucyMachine::new(compiled);
+    vm.run();
    
 }

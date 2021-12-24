@@ -41,7 +41,7 @@ impl LucyEnvironment {
             Operations::SUB => todo!(),
             Operations::MUL => todo!(),
             Operations::DIV => todo!(),
-            Operations::MOD => todo!(),
+            Operations::MOD => self.exec_mod(&instruction.arguments[0], &instruction.arguments[1]),
             Operations::CMP => self.exec_cmp(&instruction.arguments[0], &instruction.arguments[1]),
             Operations::JNE => self.exec_jne(&instruction.arguments[0]),
             Operations::JMP => self.exec_jmp(&instruction.arguments[0]),
@@ -145,7 +145,74 @@ impl OperationImpl for LucyEnvironment {
     }
 
     fn exec_mod(&mut self, left: &OperationData, right: &OperationData) {
-        todo!()
+        let mut left_data = left;
+        let mut right_data = right;
+
+        let is_register = left.typ == DataType::Register;
+        let register_id = left.data.register as usize; 
+
+        if is_register {
+            left_data = &self.registers[register_id];
+        }
+
+        if right.typ == DataType::Register {
+            let right_reg = right.data.register as usize;
+            right_data = &self.registers[right_reg];
+        }
+
+        assert!(left_data.typ == right_data.typ);
+
+        match left_data.typ {
+            DataType::Uint32 => {
+                let result = left_data.data.uint32 % right_data.data.uint32;
+
+                if is_register {
+                    self.registers[register_id].data.uint32 = result;
+                    self.flags.zf = result == 0u32;
+                }
+            },
+            DataType::Uint64 => {
+                let result = left_data.data.uint64 % right_data.data.uint64;
+
+                if is_register {
+                    self.registers[register_id].data.uint64 = result;
+                    self.flags.zf = result == 0u64;
+                }
+            },
+            DataType::Int32 => {
+                let result = left_data.data.int32 % right_data.data.int32;
+
+                if is_register {
+                    self.registers[register_id].data.int32 = result;
+                    self.flags.zf = result == 0i32;
+                }
+            },
+            DataType::Int64 => {
+                let result = left_data.data.int64 % right_data.data.int64;
+
+                if is_register {
+                    self.registers[register_id].data.int64 = result;
+                    self.flags.zf = result == 0i64;
+                }
+            },
+            DataType::Float => {
+                let result = left_data.data.float % right_data.data.float;
+
+                if is_register {
+                    self.registers[register_id].data.float = result;
+                    self.flags.zf = result == 0f32;
+                }
+            },
+            DataType::Double => {
+                let result = left_data.data.double % right_data.data.double;
+
+                if is_register {
+                    self.registers[register_id].data.double = result;
+                    self.flags.zf = result == 0f64;
+                }
+            },
+            _ => assert!(false, "not supported"),
+        }
     }
 
     fn exec_jmp(&mut self, address: &OperationData) {

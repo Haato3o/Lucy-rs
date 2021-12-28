@@ -14,7 +14,7 @@ jmp _ret
 
 ; our main function :)
 :_main
-mov rdi, 0
+mov rdi, 1
 mov rdx, 100 ; Max iteration
 
 :loop

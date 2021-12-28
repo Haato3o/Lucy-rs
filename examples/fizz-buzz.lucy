@@ -19,16 +19,16 @@ mov rdx, 100 ; Max iteration
 
 :loop
 ; Where the fizz buzz logic happens
-mov rax, rdi
-mov rbx, rax
-mod rax, 15
-je fn_fizz_buzz
-mov rax, rbx
-mod rax, 5
-je fn_buzz
-mov rax, rbx
-mod rax, 3
-je fn_fizz
+    mov rax, rdi
+    mov rbx, rax
+    mod rax, 15
+    je fn_fizz_buzz
+    mov rax, rbx
+    mod rax, 5
+    je fn_buzz
+    mov rax, rbx
+    mod rax, 3
+    je fn_fizz
 :_ret
 add rdi, 1 ; as of right now (dec 24, 2021) Lucy doesn't support the INC instruction
 cmp rdi, rdx

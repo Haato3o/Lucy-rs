@@ -1,0 +1,32 @@
+:main
+    mov rax, "Hello, world"
+    mov rcx, 0xC0FFEE
+    mov rdx, 0b110000001111111111101110
+
+    cmp rax, "Goodbye, world"
+    je string_equality_true
+    jne string_equality_false
+    :_ret_string_equality ; the ret operator isn't supported yet
+
+    cmp rcx, rdx
+    je int64_equality_true
+    jne int64_equality_false
+
+:string_equality_true
+    dmp "Strings are equal!"
+    jmp _ret_string_equality
+
+:string_equality_false
+    dmp "Strings are different!"
+    jmp _ret_string_equality
+
+:int64_equality_true
+    dmp "Int64 are equal :)"
+    jmp end
+
+:int64_equality_false
+    dmp "Int64 are different :("
+    jmp end
+
+:end
+    dmp "Bye!"
